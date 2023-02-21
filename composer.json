@@ -1,0 +1,32 @@
+{
+    "name": "rhonalchirinos/prestacli",
+    "description": "CLI for prestashop.",
+    "keywords": ["prestashop","helper"],
+    "autoload": {
+        "psr-4": {
+            "Presta\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "prestacli"
+    ],
+    "authors": [
+        {
+            "name": "Rhonal Chirinos",
+            "email": "rhonalchirinos@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "symfony/console": "^5.4",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}
