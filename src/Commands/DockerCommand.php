@@ -2,10 +2,11 @@
 
 namespace Presta\Commands;
 
-use Presta\Services\DockerService;
+use Presta\Traits\DockerCommandTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -14,10 +15,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DockerCommand extends Command
 {
 
+    use DockerCommandTrait;
+
     /**
-     * @var DockerService
+     * @var InputInterface
      */
-    private $dockerService;
+    private $input;
+
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
+     * @var String
+     */
+    private $version;
+
+    /**
+     * @var String
+     */
+    private $moduleName;
+
 
     public function __construct()
     {
@@ -31,12 +50,12 @@ class DockerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $moduleName = $input->getArgument('name');
-
-        $this->dockerService = new DockerService($input, $output);
-        $this->dockerService->public($moduleName);
-
-        return 0;
+        $this->input = $input;
+        $this->output = $output;
+        $this->moduleName = $input->getArgument('name');
+        $this->version = $input->getOption('docker-version') ?? 'latest';
+        $this->publishDockerFiles();
+        return Command::SUCCESS;
     }
 
     /**
@@ -54,5 +73,7 @@ class DockerCommand extends Command
 
             EOT
         );
+
+        $this->addOption('docker-version', 'dv', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
     }
 }

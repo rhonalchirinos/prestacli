@@ -1,55 +1,26 @@
 <?php
 
-namespace Presta\Services;
-
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+namespace Presta\Traits;
 
 /**
  * 
  */
-class DockerService
+trait DockerCommandTrait
 {
-
-    /**
-     * @var InputInterface
-     */
-    private $input;
-
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var String 
-     */
-    private $prestashopVersion;
-
-    public function __construct(InputInterface $input, OutputInterface $output)
-    {
-        $this->input = $input;
-        $this->output = $output;
-        $this->prestashopVersion = 'prestashop:1.7.8.8-apache';
-    }
 
     /**
      * 
      */
-    public function docker($moduleName)
+    public function docker()
     {
         $mysql = $this->mysql();
-        $mailhog = $this->mailhog();
-        $memcached = $this->memcached();
-        $php = $this->php($moduleName);
+        $php = $this->php($this->moduleName);
 
         return <<<DOCKER
         version: '3'
         services:
             $php
             $mysql
-            $mailhog
-            $memcached
         networks:
             presta:
                 driver: bridge
@@ -57,39 +28,6 @@ class DockerService
             prestamysql:
                 driver: local
         DOCKER;
-    }
-
-    /**
-     * @return 
-     */
-    public function mailhog(): string
-    {
-        return <<<MAILHOG
-        mailhog:
-                image: mailhog/mailhog
-                logging:
-                    driver: 'none'
-                ports:
-                    - '1025:1025'
-                    - '8025:8025'
-                networks:
-                    - presta
-        MAILHOG;
-    }
-
-    /**
-     * @return string 
-     */
-    public function memcached(): string
-    {
-        return <<<MEMCACHED
-        memcached:
-                image: memcached:latest
-                ports:
-                    - "11211:11211"
-                networks:
-                    - presta
-        MEMCACHED;
     }
 
     /**
@@ -103,7 +41,7 @@ class DockerService
                 ports:
                     - '4306:3306'
                 environment:
-                    MYSQL_ROOT_PASSWORD: '123445678'
+                    MYSQL_ROOT_PASSWORD: '12345678'
                     MYSQL_DATABASE: 'prestashop'
                     MYSQL_USER: 'prestashop'
                     MYSQL_PASSWORD: '12345678'
@@ -112,8 +50,6 @@ class DockerService
                     - 'prestamysql:/var/lib/mysql'
                 networks:
                     - presta
-                healthcheck:
-                    test: [ "CMD", "mysqladmin", "ping" ]
                 command: --innodb-buffer-pool-size=2G
         MYSQL;
     }
@@ -121,11 +57,13 @@ class DockerService
     /** 
      * @return string 
      */
-    public function php($moduleName)
+    public function php()
     {
+        $version = "prestashop/prestashop:" . $this->version;
+
         return <<<PHP
         php:
-                image: php:7.4-apache
+                image: $version
                 build:
                     context: .
                     dockerfile: backend.Dockerfile
@@ -133,7 +71,7 @@ class DockerService
                     - 8080:80
                 volumes:
                     - ./.prestashop:/var/www/html:rw
-                    - ./.:/var/www/html/modules/{$moduleName}:rw
+                    - ./.:/var/www/html/modules/{$this->moduleName}:rw
                 networks:
                     - presta
                 working_dir: /var/www
@@ -148,9 +86,9 @@ class DockerService
      */
     public function dockerFile(): string
     {
-        $version = $this->prestashopVersion;
+        $version = "prestashop/prestashop:" . $this->version;
         return <<<DOCKER
-        FROM prestashop/$version
+        FROM $version
         RUN apt-get update -y && apt-get install --no-install-recommends -y openssh-server 
         RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php --install-dir=/usr/local/bin --filename=composer && php -r "unlink('composer-setup.php');"
         RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash
@@ -161,12 +99,12 @@ class DockerService
     /**
      * 
      */
-    public function public($moduleName)
+    public function publishDockerFiles()
     {
-        $docker = $this->docker($moduleName);
-        $dokerfile = $this->dockerFile($moduleName);
-        file_put_contents("$moduleName/backend.Dockerfile", $dokerfile);
-        file_put_contents("$moduleName/docker-compose.yml", $docker);
+        $docker = $this->docker($this->moduleName);
+        $dokerfile = $this->dockerFile($this->moduleName);
+        file_put_contents("$this->moduleName/backend.Dockerfile", $dokerfile);
+        file_put_contents("$this->moduleName/docker-compose.yml", $docker);
         $this->output->writeln('<info>GENERATED DOCKER FILES </info>');
     }
 }
