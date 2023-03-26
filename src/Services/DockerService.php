@@ -167,6 +167,6 @@ class DockerService
         $dokerfile = $this->dockerFile($moduleName);
         file_put_contents("$moduleName/backend.Dockerfile", $dokerfile);
         file_put_contents("$moduleName/docker-compose.yml", $docker);
-        $this->output->writeln('<info>GENERATED DOCKER FILES :-) </info>');
+        $this->output->writeln('<info>GENERATED DOCKER FILES </info>');
     }
 }
