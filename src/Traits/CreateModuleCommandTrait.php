@@ -1,34 +1,17 @@
 <?php
 
-namespace Presta\Services;
+namespace Presta\Traits;
 
 use DOMDocument;
 use Exception;
 use GuzzleHttp\Client;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use ZipArchive;
 
 /**
  * 
  */
-class PrestashopService
+trait CreateModuleCommandTrait
 {
-
-    /**
-     * @var InputInterface
-     */
-    private $input;
-
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var DockerService
-     */
-    private $serviceDocker;
 
     /**
      * 
@@ -36,20 +19,12 @@ class PrestashopService
      */
     public $client;
 
-    public function __construct(InputInterface $input, OutputInterface $output)
-    {
-        $this->input = $input;
-        $this->output = $output;
-        $this->client = new Client(['cookies' => true]);
-        $this->serviceDocker = new DockerService($this->input, $this->output);
-    }
-
     /**
      * Get prestashop token form
      * 
      * @return string 
      */
-    public function getTokenAndValidatorSession(): string
+    private function getTokenAndValidatorSession(): string
     {
         $response = $this->client->request('get', 'https://validator.prestashop.com/generator');
         $body = $response->getBody();
@@ -72,9 +47,9 @@ class PrestashopService
      * 
      * @return void 
      */
-    private function generateFolder(string $type, string $moduleName, string $author, string $token)
+    private function generateFolder(string $token)
     {
-        $fileName = sys_get_temp_dir() .  '/' . $moduleName . '_file.zip';
+        $fileName = sys_get_temp_dir() .  '/' . $this->moduleName . '_file.zip';
         $options = [
             'multipart' => [
                 [
@@ -83,7 +58,7 @@ class PrestashopService
                 ],
                 [
                     'name' => 'module_type',
-                    'contents' => $type
+                    'contents' => $this->type
                 ],
                 [
                     'name' => 'tab',
@@ -91,11 +66,11 @@ class PrestashopService
                 ],
                 [
                     'name' => 'name',
-                    'contents' => $moduleName
+                    'contents' => $this->moduleName
                 ],
                 [
                     'name' => 'display_name',
-                    'contents' => $moduleName . ' display name....'
+                    'contents' => $this->moduleName . ' display name....'
                 ],
                 [
                     'name' => 'description',
@@ -103,7 +78,7 @@ class PrestashopService
                 ],
                 [
                     'name' => 'author',
-                    'contents' => $author
+                    'contents' => $this->author
                 ],
                 [
                     'name' => 'version_maj',
@@ -154,6 +129,7 @@ class PrestashopService
         $this->output->writeln("Generated Prject :-D");
     }
 
+
     /**
      * @param $type define the type module to generate for example payment 
      * @param $moduleName 
@@ -161,11 +137,13 @@ class PrestashopService
      * 
      * @return void 
      */
-    public function createProyect(string $type, string $moduleName, string $author): void
+    public function createProyect(): void
     {
-        $token = $this->getTokenAndValidatorSession();
-        $this->generateFolder($type, $moduleName, $author, $token);
-        $this->serviceDocker->public($moduleName);
-    }
 
+        $this->client = new Client(['cookies' => true]);
+
+        $token = $this->getTokenAndValidatorSession();
+
+        $this->generateFolder($token);
+    }
 }

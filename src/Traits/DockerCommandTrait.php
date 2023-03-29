@@ -77,7 +77,6 @@ trait DockerCommandTrait
                 working_dir: /var/www
                 depends_on:
                     - mysql
-                    - memcached
         PHP;
     }
 

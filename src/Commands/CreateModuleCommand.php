@@ -3,7 +3,8 @@
 namespace Presta\Commands;
 
 use Exception;
-use Presta\Services\PrestashopService;
+use Presta\Traits\CreateModuleCommandTrait;
+use Presta\Traits\DockerCommandTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,38 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CreateModuleCommand extends Command
 {
+    use DockerCommandTrait, CreateModuleCommandTrait;
+
+    /**
+     * @var InputInterface
+     */
+    private $input;
+
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+
+    /**
+     * @var string 
+     */
+    private $type;
+
+    /**
+     * @var string 
+     */
+    private $moduleName;
+
+    /**
+     * @var string 
+     */
+    private $author;
+
+    /**
+     * @var String
+     */
+    private $version;
 
     public function __construct()
     {
@@ -27,19 +60,26 @@ class CreateModuleCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $type = $input->getArgument('type_module');
-        $name = $input->getArgument('name_module');
-        $author = $input->getOption('author');
+        $this->input = $input;
+        $this->output = $output;
+        $this->type = $input->getArgument('type_module');
+        $this->moduleName = $input->getArgument('name_module');
+        $this->author = $input->getOption('author');
+        $this->version = $input->getOption('docker') ?? 'latest';
+        $this->validated();
+        $this->createProyect();
+        $this->publishDockerFiles();
 
-        $validateType = in_array($type, ['payment', 'shipping']);
+        return Command::SUCCESS;
+    }
+
+    protected function validated()
+    {
+        $validateType = in_array($this->type, ['payment', 'shipping']);
         if (!$validateType) throw new Exception('type module type is invalid');
 
-        $validateName = strlen($name) < 5;
+        $validateName = strlen($this->moduleName) < 5;
         if ($validateName) throw new Exception('name module type is invalid');
-
-        $service = new PrestashopService($input, $output);
-        $service->createProyect($type, $name, $author);
-        return Command::SUCCESS;
     }
 
     /**
@@ -47,7 +87,6 @@ class CreateModuleCommand extends Command
      */
     protected function configure(): void
     {
-
         $this->addArgument(
             'type_module',
             InputArgument::REQUIRED,
@@ -61,7 +100,6 @@ class CreateModuleCommand extends Command
 
             EOT
         );
-
         $this->addArgument(
             'name_module',
             InputArgument::REQUIRED,
@@ -75,7 +113,7 @@ class CreateModuleCommand extends Command
 
             EOT
         );
-
         $this->addOption('author', 'a', InputOption::VALUE_REQUIRED);
+        $this->addOption('docker', 'd', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
     }
 }

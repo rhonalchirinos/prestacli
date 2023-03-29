@@ -74,6 +74,6 @@ class DockerCommand extends Command
             EOT
         );
 
-        $this->addOption('docker-version', 'dv', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
+        $this->addOption('docker', 'dv', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
     }
 }

@@ -20,7 +20,6 @@ class App extends Application
     function __construct()
     {
         parent::__construct('PRESTASHOP CLI FOR HUMAN', '1.0.0');
-        $this->add(new InspireCommand());
         $this->add(new CreateModuleCommand());
         $this->add(new DockerCommand());
         $this->add(new ReleaseCommand());
