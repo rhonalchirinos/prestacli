@@ -28,7 +28,6 @@ class CreateModuleCommand extends Command
      */
     private $output;
 
-
     /**
      * @var string 
      */

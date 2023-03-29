@@ -7,6 +7,7 @@ use RecursiveTreeIterator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use ZipArchive;
 
 /**
@@ -32,6 +33,11 @@ class ReleaseCommand  extends Command
         'vite.config.ts',
     ];
 
+    /**
+     * @var string 
+     */
+    private $type;
+
     public function __construct()
     {
         parent::__construct('release');
@@ -55,6 +61,7 @@ class ReleaseCommand  extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $files = [];
+        $this->type = $input->getOption('type');
 
         $folder = new RecursiveTreeIterator(
             new RecursiveDirectoryIterator(dirname("./"))
@@ -68,14 +75,25 @@ class ReleaseCommand  extends Command
             }
         }
 
+        if (!file_exists('./config.xml')) {
+            $output->writeln('<error>Config.xml file not found!</error>');
+            return Command::FAILURE;
+        }
+
         if (!is_dir("./release")) {
             mkdir("./release");
         }
 
-        $configPrestashop = simplexml_load_file('./config.xml');
         $zip = new ZipArchive();
-
-        $name = 'release/' . $configPrestashop->name . '_' . $configPrestashop->version . '.zip';
+        $configPrestashop = simplexml_load_file('./config.xml');
+        $name = 'release/' . join(
+            '_',
+            [
+                $configPrestashop->name,
+                $configPrestashop->version,
+                $this->type
+            ]
+        ) . '.zip';
 
         if (file_exists($name)) {
             unlink($name);
@@ -91,6 +109,15 @@ class ReleaseCommand  extends Command
             $output->writeln('<info>GENERATED!</info>');
         }
 
-        return 0;
+        return Command::SUCCESS;
+    }
+
+
+    /**
+     * 
+     */
+    protected function configure(): void
+    {
+        $this->addOption('type', 't', InputOption::VALUE_OPTIONAL, 'Release type,  production or stage');
     }
 }
