@@ -11,7 +11,7 @@ composer global require rhonalchirinos/prestacli
 
 # Generate new project 
 
-    For generate a new module for Prestashop you should execute that command. 
+For generate a new module for Prestashop you should execute that command. 
 
     ```cmd 
     prestacli new type name --a 'name author' 
@@ -29,11 +29,10 @@ composer global require rhonalchirinos/prestacli
     docker-compose exec php chown -R www-data:www-data /var/www/html/modules/:name-module
     ```
  
-    note: the options for type and tab arguments are. 
+note: the options for type and tab arguments are. 
 
     | -------- | ------- |
-    | standard \| service | administration,
-advertising_marketing, analytics_stats, billing_invoicing, checkout, content_management, emailing, export, front_office_features, i18n_localization, market_place, merchandizing, migration_tools, mobile, others, payment_security, payments_gateways, pricing_promotion, quick_bulk_update, seo, search_filter, shipping_logistics, slideshows, smart_shopping, social_networks     |
+    | standard \| service | administration, advertising_marketing, analytics_stats, billing_invoicing, checkout, content_management, emailing, export, front_office_features, i18n_localization, market_place, merchandizing, migration_tools, mobile, others, payment_security, payments_gateways, pricing_promotion, quick_bulk_update, seo, search_filter, shipping_logistics, slideshows, smart_shopping, social_networks     |
     | shipping |     |
     | payement |     | 
 
