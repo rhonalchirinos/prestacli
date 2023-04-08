@@ -49,10 +49,23 @@ Note: For select the version of prestashop you can select it in [prestashop](htt
 
 # Release 
 
-Release command generate a .zip valid for prestashop in the release folder, this command ignore these files   
+Release command generate a .zip valid for prestashop in the release folder  
+
+```cmd
+prestacli release --t prod
+```
+    
+```cmd
+prestacli release --t stage
+```
+
+```cmd
+prestacli release --t test
+```
+
+note: this command ignore these files 
 
 ```
-note
 release
 node_modules
 resources
@@ -68,16 +81,4 @@ package-lock.json
 tsconfig.json
 tsconfig.node.json
 vite.config.ts
-```
-
-```cmd
-prestacli release --t prod
-```
-    
-```cmd
-prestacli release --t stage
-```
-
-```cmd
-prestacli release --t test
 ```
