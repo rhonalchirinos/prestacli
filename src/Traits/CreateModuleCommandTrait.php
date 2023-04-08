@@ -48,7 +48,7 @@ trait CreateModuleCommandTrait
      * @return void 
      */
     private function generateFolder(string $token)
-    {
+    {  
         $fileName = sys_get_temp_dir() .  '/' . $this->moduleName . '_file.zip';
         $options = [
             'multipart' => [
@@ -62,7 +62,7 @@ trait CreateModuleCommandTrait
                 ],
                 [
                     'name' => 'tab',
-                    'contents' => 'shipping_logistics'
+                    'contents' => $this->tab
                 ],
                 [
                     'name' => 'name',

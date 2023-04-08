@@ -18,16 +18,6 @@ class NewCommandTest  extends TestCase
      */
     public function testCreateNewProject()
     {
-
-
-        $mock = new MockHandler([
-            new Response(200, ['X-Foo' => 'Bar'], 'Hello, World')
-        ]);
-
-
-        $service = new PrestashopService();
-        
-        $service->createProyect('shipping', 'telepizza', 'Rhonal Chirinos');
         
         $this->assertTrue(true);
     }

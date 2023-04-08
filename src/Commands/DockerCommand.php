@@ -53,7 +53,7 @@ class DockerCommand extends Command
         $this->input = $input;
         $this->output = $output;
         $this->moduleName = $input->getArgument('name');
-        $this->version = $input->getOption('docker-version') ?? 'latest';
+        $this->version = $input->getOption('image') ?? 'latest';
         $this->publishDockerFiles();
         return Command::SUCCESS;
     }
@@ -74,6 +74,6 @@ class DockerCommand extends Command
             EOT
         );
 
-        $this->addOption('docker', 'dv', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
+        $this->addOption('image', 'i', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
     }
 }

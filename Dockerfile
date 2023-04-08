@@ -8,7 +8,6 @@ USER $USER
 
 RUN whoami
 
-
 COPY . /prestacli
 
 WORKDIR /prestacli

@@ -2,8 +2,7 @@
 
 namespace Presta;
 
-use Presta\Commands\DockerCommand;
-use Presta\Commands\InspireCommand;
+use Presta\Commands\DockerCommand; 
 use Presta\Commands\CreateModuleCommand;
 use Presta\Commands\ReleaseCommand;
 use Symfony\Component\Console\Application;
@@ -14,8 +13,7 @@ use Symfony\Component\Console\Application;
 class App extends Application
 {
 
-    /**
-     * @var InspireCommand 
+    /** 
      */
     function __construct()
     {

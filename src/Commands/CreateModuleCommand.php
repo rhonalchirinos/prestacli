@@ -5,6 +5,7 @@ namespace Presta\Commands;
 use Exception;
 use Presta\Traits\CreateModuleCommandTrait;
 use Presta\Traits\DockerCommandTrait;
+use Presta\Validations\PrestashopValidation;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +18,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CreateModuleCommand extends Command
 {
     use DockerCommandTrait, CreateModuleCommandTrait;
+
+    public static $typeService = [];
 
     /**
      * @var InputInterface
@@ -32,6 +35,11 @@ class CreateModuleCommand extends Command
      * @var string 
      */
     private $type;
+
+    /**
+     * @var string
+     */
+    private $tab;
 
     /**
      * @var string 
@@ -64,7 +72,8 @@ class CreateModuleCommand extends Command
         $this->type = $input->getArgument('type_module');
         $this->moduleName = $input->getArgument('name_module');
         $this->author = $input->getOption('author');
-        $this->version = $input->getOption('docker') ?? 'latest';
+        $this->tab = $input->getOption('tab_module');
+        $this->version = $input->getOption('image') ?? 'latest';
         $this->validated();
         $this->createProyect();
         $this->publishDockerFiles();
@@ -74,11 +83,13 @@ class CreateModuleCommand extends Command
 
     protected function validated()
     {
-        $validateType = in_array($this->type, ['payment', 'shipping']);
-        if (!$validateType) throw new Exception('type module type is invalid');
+        $presta = new PrestashopValidation($this->type, $this->tab, $this->moduleName);
 
-        $validateName = strlen($this->moduleName) < 5;
-        if ($validateName) throw new Exception('name module type is invalid');
+        if (empty($this->tab)) {
+            $this->tab = $this->type == 'payment' ? 'payments_gateways' : 'shipping_logistics';
+        }
+
+        return  $presta->validated() ? true : throw new Exception($presta->getMessage());
     }
 
     /**
@@ -112,7 +123,8 @@ class CreateModuleCommand extends Command
 
             EOT
         );
+        $this->addOption('tab_module', 't', InputOption::VALUE_OPTIONAL);
         $this->addOption('author', 'a', InputOption::VALUE_REQUIRED);
-        $this->addOption('docker', 'd', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
+        $this->addOption('image', 'i', InputOption::VALUE_OPTIONAL, 'Imagen version for Prestashop');
     }
 }
